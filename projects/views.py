@@ -1,14 +1,19 @@
 from django.db.models import Q
+from django.template.context_processors import request
 from rest_framework import permissions, viewsets
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Project, Task
-from .permissions import IsProjectOwnerOrMember
+from .permissions import IsProjectOwnerOrMember, OnlyAdmin
 from .serializers import ProjectSerializer, TaskSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = (permissions.IsAuthenticated, IsProjectOwnerOrMember)
+    queryset = Project.objects.all()
+    # permission_classes = (permissions.IsAuthenticated, IsProjectOwnerOrMember)
+    permission_classes = [OnlyAdmin,]
+    authentication_classes = [JWTAuthentication]
 
     def get_queryset(self):
         user = self.request.user
@@ -17,6 +22,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+    def perform_update(self, serializer):
+        # Agar saqlash paytida qoʻshimcha mantiq kerak boʻlsa,
+        # faqat ushbu metodning oʻzini ham override qilish mumkin
+        serializer.save(owner=self.request.user)
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer

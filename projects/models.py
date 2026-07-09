@@ -43,7 +43,7 @@ class Task(models.Model):
         blank=True,
     )
     project = models.ForeignKey('Project', on_delete=models.PROTECT, related_name='tasks')
-    deadline=models.DateTimeField()
+    deadline=models.DateTimeField(blank=True,null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
