@@ -10,22 +10,23 @@ from .serializers import ProjectSerializer, TaskSerializer
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    queryset = Project.objects.select_related('owner').prefetch_related('members')
+    # queryset = Project.objects.all()
     # permission_classes = (permissions.IsAuthenticated, IsProjectOwnerOrMember)
-    permission_classes = [OnlyAdmin,]
-    authentication_classes = [JWTAuthentication]
+    # permission_classes = [OnlyAdmin,]
+    # authentication_classes = [JWTAuthentication]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Project.objects.filter(Q(owner=user) | Q(members=user)).distinct()
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-    def perform_update(self, serializer):
-        # Agar saqlash paytida qoʻshimcha mantiq kerak boʻlsa,
-        # faqat ushbu metodning oʻzini ham override qilish mumkin
-        serializer.save(owner=self.request.user)
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return Project.objects.filter(Q(owner=user) | Q(members=user)).distinct()
+    #
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
+    #
+    # def perform_update(self, serializer):
+    #     # Agar saqlash paytida qoʻshimcha mantiq kerak boʻlsa,
+    #     # faqat ushbu metodning oʻzini ham override qilish mumkin
+    #     serializer.save(owner=self.request.user)
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
